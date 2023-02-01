@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pocketbase/provider/login_provider.dart';
+import 'package:flutter_pocketbase/repository/auth_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -11,6 +13,16 @@ class LoginScreen extends ConsumerStatefulWidget {
 class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   final emailController = TextEditingController(text: 'viet.hung.2898@gmail.com');
+  final passwordController = TextEditingController(text: 'Admin123!');
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is removed from the
+    // widget tree.
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -45,8 +57,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
             Container(
               padding: const EdgeInsets.all(10),
-              child: const TextField(
-                decoration: InputDecoration(
+              child: TextField(
+                controller: emailController,
+                decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Email address',
                 ),
@@ -55,9 +68,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
             Container(
               padding: const EdgeInsets.all(10),
-              child: const TextField(
+              child: TextField(
+                controller: passwordController,
                 obscureText: true,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Password',
                 ),
@@ -84,7 +98,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 20),
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                onPressed: () { },
+                onPressed: () {
+                  ref.read(login_provider.notifier)
+                    .login(emailController.text, passwordController.text);
+                },
                 child: const Text('Sign in'),
               )
             ),

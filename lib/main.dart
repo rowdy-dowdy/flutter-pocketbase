@@ -15,14 +15,18 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(router_provider);
+
     return MaterialApp.router(
       title: 'Auth Riverpod GoRouter',
-      theme: ThemeData(
-        primarySwatch: Colors.deepOrange,
-      ),
-      routeInformationParser: router.routeInformationParser,
-      routerDelegate: router.routerDelegate,
-      // routerConfig: router,
+      // theme: ThemeData(
+      //   primarySwatch: Colors.deepOrange,
+      // ),
+      darkTheme: ThemeData.dark(),
+      themeMode: ThemeMode.dark,
+      debugShowCheckedModeBanner: false,
+      // routeInformationParser: router.routeInformationParser,
+      // routerDelegate: router.routerDelegate,
+      routerConfig: router,
     );
   }
 }

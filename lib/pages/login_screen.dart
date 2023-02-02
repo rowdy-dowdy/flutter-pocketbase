@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pocketbase/provider/login_provider.dart';
-import 'package:flutter_pocketbase/repository/auth_repository.dart';
+import 'package:flutter_pocketbase/providers/auth_provider.dart';
+import 'package:flutter_pocketbase/providers/login_provider.dart';
+import 'package:flutter_pocketbase/repositories/auth_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -99,7 +100,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
                 onPressed: () {
-                  ref.read(login_provider.notifier)
+                  ref.read(auth_provider.notifier)
                     .login(emailController.text, passwordController.text);
                 },
                 child: const Text('Sign in'),

@@ -1,5 +1,5 @@
-import 'package:flutter_pocketbase/provider/state/login_state.dart';
-import 'package:flutter_pocketbase/repository/auth_repository.dart';
+import 'package:flutter_pocketbase/providers/states/login_state.dart';
+import 'package:flutter_pocketbase/repositories/auth_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LoginNotifier extends StateNotifier<LoginState> {

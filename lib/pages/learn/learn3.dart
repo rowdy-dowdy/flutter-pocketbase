@@ -88,12 +88,41 @@ class Learn3Screen extends ConsumerWidget {
       ),
       body: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-          
-          ],
-        ),
+        child: Consumer(builder: (context, ref, child) {
+          final dataModel = ref.watch(peopleProvider);
+
+          return ListView.builder(
+            itemCount: dataModel.count,
+            itemBuilder: (context, index) {
+              final person = dataModel.people[index];
+
+              return ListTile(
+                title: GestureDetector(
+                  onTap: () async {
+                    final updatePerson = await createOrUpdatePersonDialog(context, person);
+                    if (updatePerson != null) {
+                      dataModel.update(updatePerson);
+                    }
+                  },
+                  child: Text(
+                    person.displayName
+                  ),
+                ),
+              );
+            },
+          );
+        }),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final person = await createOrUpdatePersonDialog(context);
+
+          if (person != null) {
+            final dataModel = ref.watch(peopleProvider);
+            dataModel.add(person);
+          }
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -141,10 +170,12 @@ Future<Person?> createOrUpdatePersonDialog(BuildContext context, [Person? exitin
             if (name != null && age != null) {
               if (exitingPerson != null) {
                 final newPerson = exitingPerson.update(name, age);
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(newPerson);
               }
               else {
-
+                Navigator.of(context).pop(
+                  Person(name: name!, age: age!)
+                );
               }
             }
             else {

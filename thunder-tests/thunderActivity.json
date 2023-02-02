@@ -1,0 +1,21 @@
+[
+  {
+    "_id": "92a91200-f7c9-404f-8f1b-ab3170fe7aba",
+    "colId": "history",
+    "containerId": "",
+    "name": "base.viethung.fun/api/collections/users/auth-with-password",
+    "url": "base.viethung.fun/api/collections/users/auth-with-password",
+    "method": "POST",
+    "sortNum": 0,
+    "created": "2023-02-02T06:35:35.087Z",
+    "modified": "2023-02-02T06:37:37.667Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"identity\": \"viet.hung.2898@gmail.com\",\n  \"password\": \"Admin123!\"\n}",
+      "form": []
+    },
+    "tests": []
+  }
+]

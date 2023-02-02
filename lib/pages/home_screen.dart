@@ -104,7 +104,7 @@ class HomeScreen extends ConsumerWidget {
 
                   return ListTile(
                     title: Text(
-                      city.toString()
+                      city.toString().split('.').last
                     ),
                     trailing: isSelected ? const Icon(Icons.check) : null,
                     onTap: () => ref.read(currentCityProvider.notifier).state = city,

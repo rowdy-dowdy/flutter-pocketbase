@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pocketbase/page/home_screen.dart';
-import 'package:flutter_pocketbase/page/login_screen.dart';
-import 'package:flutter_pocketbase/provider/router_provider.dart';
+import 'package:flutter_pocketbase/pages/home_screen.dart';
+import 'package:flutter_pocketbase/pages/login_screen.dart';
+import 'package:flutter_pocketbase/providers/router_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 

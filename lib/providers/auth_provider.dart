@@ -22,7 +22,7 @@ class AuthNotifier extends StateNotifier<AuthModel> {
     }
   }
 
-  void login(String email, String password) async {
+  Future<void> login(String email, String password) async {
     state = state.copiedWithIsLoading(true);
     AuthResult? result = await _ref.read(auth_repository_provider).login(email, password);
 
@@ -41,6 +41,18 @@ class AuthNotifier extends StateNotifier<AuthModel> {
   }
 }
 
-final auth_provider = StateNotifierProvider<AuthNotifier, AuthModel>((ref) {
+final authProvider = StateNotifierProvider<AuthNotifier, AuthModel>((ref) {
   return AuthNotifier(ref);
+});
+
+final isAuthLoginProvider = Provider((ref) {
+  final isAuth = ref.watch(authProvider).authSate == AuthSate.success;
+
+  return isAuth;
+});
+
+final isLoadingLoginProvider = Provider((ref) {
+  final isLoadingLogin = ref.watch(authProvider).isLoading;
+
+  return isLoadingLogin;
 });

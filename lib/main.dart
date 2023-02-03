@@ -21,8 +21,8 @@ class MyApp extends ConsumerWidget {
       // theme: ThemeData(
       //   primarySwatch: Colors.deepOrange,
       // ),
-      darkTheme: ThemeData.dark(),
-      themeMode: ThemeMode.dark,
+      // darkTheme: ThemeData.dark(),
+      // themeMode: ThemeMode.dark,
       debugShowCheckedModeBanner: false,
       // routeInformationParser: router.routeInformationParser,
       // routerDelegate: router.routerDelegate,

@@ -18,16 +18,11 @@ class AuthRepository {
   Ref? _ref;
   PocketBase? pb;
   Dio? dio;
-  SharedPreferences? prefs;
 
   AuthRepository(Ref ref) {
     _ref = ref;
     pb = ref.read(pocketbaseProvider);
     dio = ref.read(dioProvider);
-    prefs = ref.watch(sharedPrefsProvider).maybeWhen(
-      data: (value) => value,
-      orElse: () => null,
-    );
   }
 
   Future<AuthResult?> login(String email, String password) async {
@@ -48,7 +43,10 @@ class AuthRepository {
         response.data['token']
       );
 
-      await prefs?.setString('token', response.data['token']);
+      final prefs2 = await SharedPreferences.getInstance();
+      await prefs2.setString('token', response.data['token']);
+
+      // await prefs?.setString('token', response.data['token']);
       
       return result;
       
@@ -60,19 +58,29 @@ class AuthRepository {
 
   Future<AuthResult?> logged() async {
     try {
-      final a = this._ref?.read(sharedPrefsProvider).maybeWhen(
-        data: (value) => value,
-        orElse: () => null,
+      final prefs = await this._ref!.read(sharedPrefsProvider.future);
+      final token = await prefs.getString('token');
+
+      Response response = await dio!.post('/api/collections/users/auth-refresh',
+        options: Options(
+          headers: {
+            'Authorization': "Bearer ${token}"
+          }
+        )
       );
-      print(a);
 
-      final String? token = await prefs?.getString('token');
-      print("token: " + token!);
-      // Response response = await dio!.get('/api/collections/users/auth-refresh');
+      AuthResult result = AuthResult(
+        UserModel(
+          response.data['record']['id'], 
+          response.data['record']['username'], 
+          response.data['record']['email'], 
+          DateTime.parse(response.data['record']['created']), 
+          DateTime.parse(response.data['record']['updated'])
+        ), 
+        response.data['token']
+      );
 
-      // print(response.data.toString());
-
-      return null;
+      return result;
       
     } catch (e) {
       print({e});

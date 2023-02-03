@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pocketbase/components/page_transition.dart';
 import 'package:flutter_pocketbase/layouts/main_layout.dart';
 import 'package:flutter_pocketbase/models/auth_model.dart';
 import 'package:flutter_pocketbase/pages/calendar_screen.dart';
 import 'package:flutter_pocketbase/pages/home_screen.dart';
-import 'package:flutter_pocketbase/pages/learn/learn2.dart';
-import 'package:flutter_pocketbase/pages/learn/learn3.dart';
-import 'package:flutter_pocketbase/pages/learn/leran4.dart';
 import 'package:flutter_pocketbase/pages/login_screen.dart';
 import 'package:flutter_pocketbase/pages/news_screen.dart';
 import 'package:flutter_pocketbase/pages/notifications_screen.dart';
 import 'package:flutter_pocketbase/pages/user_screen.dart';
 import 'package:flutter_pocketbase/providers/auth_provider.dart';
-import 'package:flutter_pocketbase/providers/login_provider.dart';
-import 'package:flutter_pocketbase/providers/states/login_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -52,27 +48,47 @@ class RouterNotifier extends ChangeNotifier {
         GoRoute(
           name: 'home',
           path: '/',
-          builder: (context, state) => const HomeScreen(),
+          pageBuilder: (context, state) => buildPageWithDefaultTransition<void>(
+            context: context, 
+            state: state, 
+            child: const HomeScreen(),
+          ),
         ),
         GoRoute(
           name: 'calendar',
           path: '/calendar',
-          builder: (context, state) => const CalendartScreen(),
+          pageBuilder: (context, state) => buildPageWithDefaultTransition<void>(
+            context: context, 
+            state: state, 
+            child: const CalendarScreen(),
+          ),
         ),
         GoRoute(
           name: 'news',
           path: '/news',
-          builder: (context, state) => const NewsScreen(),
+          pageBuilder: (context, state) => buildPageWithDefaultTransition<void>(
+            context: context, 
+            state: state, 
+            child: const NewsScreen(),
+          ),
         ),
         GoRoute(
           name: 'notifications',
           path: '/notifications',
-          builder: (context, state) => const NotificationsScreen(),
+          pageBuilder: (context, state) => buildPageWithDefaultTransition<void>(
+            context: context, 
+            state: state, 
+            child: const NotificationsScreen(),
+          ),
         ),
         GoRoute(
           name: 'user',
           path: '/user',
-          builder: (context, state) => const UserScreen(),
+          pageBuilder: (context, state) => buildPageWithDefaultTransition<void>(
+            context: context, 
+            state: state, 
+            child: const UserScreen(),
+          ),
         ),
       ]
     ),
@@ -85,7 +101,7 @@ class RouterNotifier extends ChangeNotifier {
   ];
 }
 
-final router_provider = Provider<GoRouter>((ref) {
+final routerProvider = Provider<GoRouter>((ref) {
   final router = RouterNotifier(ref);
 
   return GoRouter(

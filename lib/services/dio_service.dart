@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 var options = BaseOptions(
   baseUrl: 'https://base.viethung.fun',
-  connectTimeout: 5000,
-  receiveTimeout: 3000,
+  // connectTimeout: 5000,
+  // receiveTimeout: 3000,
 );
 
 Dio dio = Dio(options);

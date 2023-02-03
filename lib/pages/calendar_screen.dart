@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CalendartScreen extends ConsumerWidget {
-  const CalendartScreen({super.key});
+class CalendarScreen extends ConsumerWidget {
+  const CalendarScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

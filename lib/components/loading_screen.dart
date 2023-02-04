@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_pocketbase/lang/strings.dart';
+import 'package:flutter_pocketbase/utils/strings.dart';
 
 typedef CloseLoadingScreen = bool Function();
 typedef UpadteLoadingScreen = bool Function(String text);

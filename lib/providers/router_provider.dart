@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pocketbase/components/page_transition.dart';
 import 'package:flutter_pocketbase/layouts/main_layout.dart';
 import 'package:flutter_pocketbase/models/auth_model.dart';
-import 'package:flutter_pocketbase/pages/calendar_screen.dart';
-import 'package:flutter_pocketbase/pages/home_screen.dart';
+import 'package:flutter_pocketbase/pages/chat_detail.dart';
+import 'package:flutter_pocketbase/pages/contacts_screen.dart';
+import 'package:flutter_pocketbase/pages/chat_screen.dart';
 import 'package:flutter_pocketbase/pages/login_screen.dart';
-import 'package:flutter_pocketbase/pages/news_screen.dart';
-import 'package:flutter_pocketbase/pages/notifications_screen.dart';
-import 'package:flutter_pocketbase/pages/user_screen.dart';
+import 'package:flutter_pocketbase/pages/settings_screen.dart';
 import 'package:flutter_pocketbase/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -46,48 +45,41 @@ class RouterNotifier extends ChangeNotifier {
       },
       routes: [
         GoRoute(
-          name: 'home',
+          name: 'chat',
           path: '/',
           pageBuilder: (context, state) => buildPageWithDefaultTransition<void>(
             context: context, 
             state: state, 
-            child: const HomeScreen(),
+            child: const ChatScreen(),
           ),
+          routes: [
+            GoRoute(
+              name: 'chat-detail',
+              path: 'chat-detail/:userId',
+              pageBuilder: (context, state) => buildPageWithDefaultTransition<void>(
+                context: context, 
+                state: state, 
+                child: ChatDetailScreen(id: state.params['userId']),
+              ),
+            ),
+          ]
         ),
         GoRoute(
-          name: 'calendar',
-          path: '/calendar',
+          name: 'contacts',
+          path: '/contacts',
           pageBuilder: (context, state) => buildPageWithDefaultTransition<void>(
             context: context, 
             state: state, 
-            child: const CalendarScreen(),
+            child: const ContactsScreen(),
           ),
         ),
         GoRoute(
-          name: 'news',
-          path: '/news',
+          name: 'settings',
+          path: '/settings',
           pageBuilder: (context, state) => buildPageWithDefaultTransition<void>(
             context: context, 
             state: state, 
-            child: const NewsScreen(),
-          ),
-        ),
-        GoRoute(
-          name: 'notifications',
-          path: '/notifications',
-          pageBuilder: (context, state) => buildPageWithDefaultTransition<void>(
-            context: context, 
-            state: state, 
-            child: const NotificationsScreen(),
-          ),
-        ),
-        GoRoute(
-          name: 'user',
-          path: '/user',
-          pageBuilder: (context, state) => buildPageWithDefaultTransition<void>(
-            context: context, 
-            state: state, 
-            child: const UserScreen(),
+            child: const SettingsScreen(),
           ),
         ),
       ]

@@ -42,8 +42,8 @@ final weatherProvider = FutureProvider<String>((ref) {
   }
 });
 
-class HomeScreen extends ConsumerWidget {
-  const HomeScreen({super.key});
+class LearnScreen extends ConsumerWidget {
+  const LearnScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

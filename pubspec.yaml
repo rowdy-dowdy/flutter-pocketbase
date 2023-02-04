@@ -42,6 +42,8 @@ dependencies:
   pocketbase: ^0.7.1+1
   dio: ^4.0.6
   shared_preferences: ^2.0.17
+  flutter_icons: ^1.1.0
+  badges: ^3.0.2
 
 dev_dependencies:
   flutter_test:

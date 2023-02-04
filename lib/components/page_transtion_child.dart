@@ -1,20 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-String? oldLocation = 'chat';
-List<String> bottomMenuName = ["contacts", "chat", "chat-detail", "settings"];
-
-CustomTransitionPage buildPageWithDefaultTransition<T>({
+CustomTransitionPage buildPageChildTransition<T>({
   required BuildContext context, 
   required GoRouterState state, 
   required Widget child,
 }) {
-
-  int indexOldLocation = bottomMenuName.indexWhere((element) => element == oldLocation);
-  int indexLocation = bottomMenuName.indexWhere((element) => element == state.name);
-
-  double beginOffset = (indexOldLocation < indexLocation) ? 1.0 : -1.0;
-  oldLocation = state.name;
   
   return CustomTransitionPage<T>(
     key: state.pageKey,
@@ -22,7 +13,7 @@ CustomTransitionPage buildPageWithDefaultTransition<T>({
     transitionDuration: const Duration(milliseconds: 150),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
 
-      final begin = Offset(beginOffset, 0.0);
+      const begin = Offset(-1.0, 0.0);
       const end = Offset.zero;
       const curve = Curves.ease;
 

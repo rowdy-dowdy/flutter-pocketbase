@@ -83,7 +83,6 @@ class AuthRepository {
       return result;
       
     } catch (e) {
-      print({e});
       return null;
     }
   }

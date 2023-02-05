@@ -5,6 +5,7 @@ import 'package:flutter_pocketbase/models/auth_model.dart';
 import 'package:flutter_pocketbase/pages/chat_detail.dart';
 import 'package:flutter_pocketbase/pages/contacts_screen.dart';
 import 'package:flutter_pocketbase/pages/chat_screen.dart';
+import 'package:flutter_pocketbase/pages/first_load_screen.dart';
 import 'package:flutter_pocketbase/pages/login_screen.dart';
 import 'package:flutter_pocketbase/pages/settings_screen.dart';
 import 'package:flutter_pocketbase/providers/auth_provider.dart';
@@ -15,24 +16,26 @@ class RouterNotifier extends ChangeNotifier {
   final Ref _ref;
 
   RouterNotifier(this._ref) {
-    _ref.listen<bool>(isAuthLoginProvider, 
+    _ref.listen(authProvider, 
     (_, __) => notifyListeners());
     // _ref.watch(login_provider);
   }
 
   String? _redirect_login(_, GoRouterState state) {
-    final isLogin = _ref.read(isAuthLoginProvider);
-    final isLoginLoading = _ref.read(isLoadingLoginProvider);
+    final authSate = _ref.read(authProvider).authSate;
     
-    if (isLoginLoading) return null;
+    if (authSate == AuthSate.initial) return null;
 
     final are_we_loggin_in = state.location == "/login";
 
-    if (!isLogin) {
+    if (authSate != AuthSate.login) {
+      if (state.location == '/loading') {
+
+      }
       return are_we_loggin_in ? null : '/login';
     }
 
-    if (are_we_loggin_in) return '/';
+    if (are_we_loggin_in || state.location == '/loading') return '/';
 
     return null;    
   }
@@ -90,6 +93,12 @@ class RouterNotifier extends ChangeNotifier {
       path: '/login',
       builder: (context, state) => const LoginScreen(),
     ),
+
+    GoRoute(
+      name: 'loading',
+      path: '/loading',
+      builder: (context, state) => const FirstLoadScreen(),
+    ),
   ];
 }
 
@@ -97,7 +106,7 @@ final routerProvider = Provider<GoRouter>((ref) {
   final router = RouterNotifier(ref);
 
   return GoRouter(
-    initialLocation: '/',
+    initialLocation: '/loading',
     debugLogDiagnostics: true,
     refreshListenable: router,
     redirect: router._redirect_login,

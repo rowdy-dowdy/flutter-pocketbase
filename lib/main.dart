@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_pocketbase/pages/chat_screen.dart';
 import 'package:flutter_pocketbase/pages/login_screen.dart';
@@ -20,6 +22,9 @@ class MyApp extends ConsumerWidget {
       title: 'Auth Riverpod GoRouter',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+      ),
+      scrollBehavior: MaterialScrollBehavior().copyWith(
+        dragDevices: {PointerDeviceKind.mouse, PointerDeviceKind.touch, PointerDeviceKind.stylus, PointerDeviceKind.unknown},
       ),
       // darkTheme: ThemeData.dark(),
       // themeMode: ThemeMode.dark,

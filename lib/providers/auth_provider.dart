@@ -12,47 +12,32 @@ class AuthNotifier extends StateNotifier<AuthModel> {
   final Ref _ref;
 
   Future<void> init() async {
-    state = state.copiedWithIsLoading(true);
     AuthResult? result = await _ref.read(auth_repository_provider).logged();
     if (result != null) {
-      state = AuthModel(authSate: AuthSate.success, isLoading: false, user: result.user, token: result.token);
+      state = AuthModel(authSate: AuthSate.login, user: result.user, token: result.token);
     }
     else {
-      state = const AuthModel.unknown();
+      state = const AuthModel.failure();
     }
   }
 
   Future<void> login(String email, String password) async {
-    state = state.copiedWithIsLoading(true);
     AuthResult? result = await _ref.read(auth_repository_provider).login(email, password);
 
     if (result != null) {
-      state = AuthModel(authSate: AuthSate.success, isLoading: false, user: result.user, token: result.token);
+      state = AuthModel(authSate: AuthSate.login, user: result.user, token: result.token);
     }
     else {
-      state = const AuthModel.unknown();
+      state = const AuthModel.failure();
     }
   }
   
   Future<void> logOut() async {
-    state = state.copiedWithIsLoading(true);
     await _ref.read(auth_repository_provider).logOut();
-    state = const AuthModel.unknown();
+    state = const AuthModel.failure();
   }
 }
 
 final authProvider = StateNotifierProvider<AuthNotifier, AuthModel>((ref) {
   return AuthNotifier(ref);
-});
-
-final isAuthLoginProvider = Provider((ref) {
-  final isAuth = ref.watch(authProvider).authSate == AuthSate.success;
-
-  return isAuth;
-});
-
-final isLoadingLoginProvider = Provider((ref) {
-  final isLoadingLogin = ref.watch(authProvider).isLoading;
-
-  return isLoadingLogin;
 });

@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+// import 'package:flutter_icons/flutter_icons.dart';
 
 List setting_section_one = [
   {"icon": Icons.bookmark, "text": "Saved Messages", "color": Colors.blue[700]},
   {
-    "icon": FontAwesome.phone,
+    "icon": Icons.phone,
     "text": "Recent Calls",
     "color": Colors.green
   },
   {
-    "icon": MaterialIcons.devices,
+    "icon": Icons.devices,
     "text": "Devices",
     "color": Color(0xFFFCAA26)
   },
@@ -53,7 +53,7 @@ List setting_section_three = [
     "color": Colors.cyan
   },
   {
-    "icon": MaterialIcons.lightbulb_outline,
+    "icon": Icons.lightbulb_outline,
     "text": "Telegram Features",
     "color": Color(0xFFFCAA26)
   },

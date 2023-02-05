@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+// import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_pocketbase/providers/router_provider.dart';
 import 'package:flutter_pocketbase/utils/colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,17 +11,17 @@ class MainBottomNavBar extends ConsumerWidget {
 
   static const menu = <Map>[
     {
-      "icon": MaterialIcons.account_circle,
+      "icon": Icons.account_circle,
       "path": "/contacts",
       "text": "Contacts"
     },
     {
-      "icon": Ionicons.ios_chatboxes,
+      "icon": Icons.chat_bubble_rounded,
       "path": "/",
       "text": "Chats"
     },
     {
-      "icon": MaterialIcons.settings,
+      "icon": Icons.settings,
       "path": "/settings",
       "text": "Settings"
     },

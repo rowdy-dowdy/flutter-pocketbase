@@ -1,26 +1,26 @@
 import 'package:flutter_pocketbase/models/user_model.dart';
 
 enum AuthSate {
-  aborted,
-  success,
-  failure
+  initial,
+  login,
+  notLogin
 }
 
 class AuthModel {
   final AuthSate? authSate;
-  final bool isLoading;
   final UserModel? user;
   final String? token;
 
-  AuthModel({required this.authSate, required this.isLoading, required this.user, required this.token});
+  AuthModel({required this.authSate, required this.user, required this.token});
 
   const AuthModel.unknown()
-    : authSate = null,
-      isLoading = false,
+    : authSate = AuthSate.initial,
       user = null,
       token = null;
 
-  AuthModel copiedWithIsLoading(bool isLoading) {
-    return AuthModel(authSate: authSate, isLoading: isLoading, user: user, token: token);
-  }
+  const AuthModel.failure()
+    : authSate = AuthSate.notLogin,
+      user = null,
+      token = null;
+
 }

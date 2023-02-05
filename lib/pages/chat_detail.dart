@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+// import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_pocketbase/utils/chat_json.dart';
 import 'package:flutter_pocketbase/utils/colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,6 +19,7 @@ class ChatDetailScreen extends ConsumerWidget {
       children: [
         const GetAppBar(),
         Expanded(flex: 1, child: Container(
+          height: double.infinity,
           decoration: const BoxDecoration(
             color: bgColor
           ),
@@ -80,37 +81,63 @@ class GetBottomBar  extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       width: double.infinity,
-      height: 60,
+      // height: 60,
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
       decoration: const BoxDecoration(
         color: greyColor
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Icon(Entypo.attachment, color: primary, size: 21,),
-          Container(
-            decoration: BoxDecoration(
-              color: white.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(30)
-            ),
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8),
-              child: TextField(
-                style: TextStyle(
-                  color: white
-                ),
-                cursorColor: primary,
-                // decoration: InputDecoration(
-                //   border: InputBorder.none
-                // ),
+          const Icon(Icons.attachment, color: primary, size: 25,),
+          const SizedBox(width: 5,),
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              decoration: BoxDecoration(
+                color: white.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(30)
+              ),
+              child: Row(
+                children: const [
+                  Flexible(
+                    child: TextField(
+                      style: TextStyle(
+                        color: white
+                      ),
+                      cursorColor: primary,
+                      decoration: InputDecoration(
+                        isDense: true,
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(vertical: 12.0),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 5,),
+                  Icon(Icons.emoji_emotions_rounded, color: primary, size: 25,)
+                ],
               ),
             ),
           ),
-          const Icon(MaterialCommunityIcons.microphone, color: primary, size: 21,)
+          const SizedBox(width: 5,),
+          const Icon(Icons.mic, color: primary, size: 25,)
         ],
       ),
+    );
+  }
+}
+
+class GetBodyChat extends ConsumerWidget {
+  const GetBodyChat({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ListView(
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      children: List.generate(messages.length, (index) {
+        return Container();
+      }),
     );
   }
 }

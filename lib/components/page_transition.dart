@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 String? oldLocation = 'chat';
-List<String> bottomMenuName = ["contacts", "chat", "chat-detail", "settings"];
+List<String> bottomMenuName = ["contacts", "chat", "chat-detail", "settings", "setting-edit"];
 
 CustomTransitionPage buildPageWithDefaultTransition<T>({
   required BuildContext context, 

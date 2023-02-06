@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 // import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_pocketbase/utils/chat_json.dart';
 import 'package:flutter_pocketbase/utils/colors.dart';
+import 'package:flutter_pocketbase/utils/setting_json.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 import 'package:badges/badges.dart' as badges;
 
@@ -15,16 +17,21 @@ class SettingsScreen extends ConsumerWidget {
       // mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        getAppBar(),
+        const GetAppBar(),
         Expanded(flex: 1, child: Container(
           decoration: const BoxDecoration(
             color: bgColor
           ),
           child: SingleChildScrollView(
             child: Column(
-              children: const [
-                GetSearchBar(),
-                GetListChats()
+              children: [
+                const GetImageSetting(),
+                GetSection(setting_section_data: setting_section_one,),
+                const SizedBox(height: 30,),
+                GetSection(setting_section_data: setting_section_two,),
+                const SizedBox(height: 30,),
+                GetSection(setting_section_data: setting_section_three,),
+                const SizedBox(height: 20,),
               ],
             ),
           ),
@@ -34,150 +41,140 @@ class SettingsScreen extends ConsumerWidget {
   }
 }
 
-Widget getAppBar() {
-  return PreferredSize(
-    preferredSize: const Size.fromHeight(60),
-    child: AppBar(
-      elevation: 0,
-      backgroundColor: greyColor,
-      centerTitle: true,
-      title: const Text("Edit", style: TextStyle(
-        fontSize: 16,
-        color: white,
-        fontWeight: FontWeight.w500
-      )),
-      leading: IconButton(
-        onPressed: () {},
-        icon: const Text("Sort",style: TextStyle(
-          color: primary,
-          fontSize: 16,
-          fontWeight: FontWeight.w500
+class GetAppBar extends ConsumerWidget {
+  const GetAppBar({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(60),
+      child: AppBar(
+        elevation: 0,
+        backgroundColor: greyColor,
+        centerTitle: true,
+        leading: IconButton(
+          onPressed: () {},
+          icon: const Icon(Icons.qr_code, color: primary, size: 26,),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => context.go('/settings/edit'), 
+            child: const Text("Edit", style: TextStyle(
+              fontSize: 16, color: primary, fontWeight: FontWeight.w500,
+            ), softWrap: false,)),
+        
+        ],
+      ),
+    );
+  }
+}
+
+class GetImageSetting extends ConsumerWidget {
+  const GetImageSetting({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Column(
+      children: [
+        Center(
+          child: Container(
+            width: 90,
+            height: 90,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              image: DecorationImage(image: NetworkImage(profile[0]['img']), fit: BoxFit.cover)
+            ),
+          ),
+        ),
+        const SizedBox(height: 20,),
+        Text(profile[0]['name'], style: const TextStyle(
+          fontSize: 24, color: white, fontWeight: FontWeight.w600
         ),),
-      ),
-      actions: const [
-        IconButton(onPressed: null, icon: Icon(Icons.edit, color: primary,))
+        const SizedBox(height: 2,),
+        Text("+84 399 633 237 - @viethungit", style: TextStyle(
+          fontSize: 18, color: white.withOpacity(0.5), fontWeight: FontWeight.w500
+        ),),
+        const SizedBox(height: 20,)
       ],
-    ),
-  );
-}
-
-class GetSearchBar extends ConsumerWidget {
-  const GetSearchBar({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-      // height: 68,
-      decoration: const BoxDecoration(
-        color: greyColor
-      ),
-      child: Container(
-        // height: 38,
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(10)
-        ),
-        child: TextFormField(
-          style: const TextStyle(
-            color: white
-          ),
-          // textAlign: TextAlign.center,
-          cursorColor: primary,
-          decoration: InputDecoration(
-            border: InputBorder.none,
-            prefixIcon: Icon(Icons.search, color: white.withOpacity(0.3),),
-            hintText: "Search for message or user",
-            hintStyle: TextStyle(
-              color: white.withOpacity(0.3),
-              fontSize: 17
-            )
-          ),
-        ),
-      ),
     );
   }
 }
 
-class GetListChats extends ConsumerWidget {
-  const GetListChats({super.key});
+class GetSection extends ConsumerWidget {
+  final setting_section_data;
+  const GetSection({required this.setting_section_data, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
-      child: Column(
-        children: List.generate(chat_data.length, (index) {
-          return Row(
-            children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: DecorationImage(
-                    image: NetworkImage(chat_data[index]['img'],),
-                    fit: BoxFit.cover
-                  )
-                ),
-              ),
-              const SizedBox(width: 12,),
-              Expanded(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    minHeight: 70,
+    return Column(
+      children: [
+        for(var i = 0; i < setting_section_data.length; i++)...[
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            margin: const EdgeInsets.symmetric(horizontal: 10),
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              color: textfieldColor
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: setting_section_data[i]['color'],
+                    borderRadius: BorderRadius.circular(8)
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(chat_data[index]['name'], style: const TextStyle(
-                            fontSize: 16,
-                            color: white,
-                            fontWeight: FontWeight.w600
-                          ), maxLines: 2,),
-                          const SizedBox(width: 2,),
-                          Text(chat_data[index]['date'], style: TextStyle(
-                            fontSize: 14,
-                            color: white.withOpacity(0.4)
-                          ),)
-                        ],
-                      ),
-                      const SizedBox(height: 5,),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(chat_data[index]['text'], style: TextStyle(
-                              fontSize: 15,
-                              color: white.withOpacity(0.3),), 
-                              maxLines: 1, 
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          const SizedBox(width: 2,),
-                          chat_data[index]['badge'] > 0
-                          ? badges.Badge(
-                            badgeContent: Text(chat_data[index]['badge'].toString(), style: const TextStyle(color: white),),
-                            badgeStyle: const badges.BadgeStyle(
-                              badgeColor: primary
-                            ),
-                          )
-                          : Container()
-                        ],
-                      ),
-                      Divider(color: white.withOpacity(0.3),)
-                    ],
+                  child: Center(
+                    child: Icon(setting_section_data[i]['icon'], color: white, size: 20,),
                   ),
                 ),
-              )
-            ],
-          );
-        }),
-      ),
+                const SizedBox(width: 12,),
+                Expanded(
+                  child: Text(setting_section_data[i]['text'], style: const TextStyle(
+                    fontSize: 16, color: white, fontWeight: FontWeight.w500
+                  ),),
+                ),
+                const SizedBox(width: 12,),
+                GetLangAndSticker(value: setting_section_data[i]['text'],),
+                const SizedBox(width: 5,),
+                Icon(Icons.arrow_forward_ios, color: white.withOpacity(0.2), size: 15,)
+              ],
+            ),
+          ),
+          // const SizedBox(height: 10,)
+        ]
+      ]
     );
   }
+
 }
+
+class GetLangAndSticker extends ConsumerWidget {
+  final value;
+  const GetLangAndSticker({required this.value, super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (value == "Language") {
+      return Text("English", style: TextStyle(
+        fontSize: 15, color: white.withOpacity(0.5)
+      ),);
+    }
+    else if (value == "Stickers and Emoji") {
+      return const badges.Badge(
+        badgeStyle: badges.BadgeStyle(
+          badgeColor: primary,
+        ),
+        badgeContent: Text("12", style: TextStyle(
+          fontSize: 15, color: white
+        ),),
+      );
+    }
+    else {
+      return Container();
+    }
+  }
+}
+
+

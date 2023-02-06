@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pocketbase/components/chat_buble.dart';
 // import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_pocketbase/utils/chat_json.dart';
 import 'package:flutter_pocketbase/utils/colors.dart';
@@ -23,15 +24,9 @@ class ChatDetailScreen extends ConsumerWidget {
           decoration: const BoxDecoration(
             color: bgColor
           ),
-          child: SingleChildScrollView(
-            child: Column(
-              children: const [
-                Text("hung", style: TextStyle(color: white),)
-              ],
-            ),
-          ),
+          child: const GetBodyChat()
         )),
-        const GetBottomBar()
+        const GetBottomBar(),
       ],
     );
   }
@@ -136,7 +131,12 @@ class GetBodyChat extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: 20),
       children: List.generate(messages.length, (index) {
-        return Container();
+        return CustomBubbleChat(
+          isMe: messages[index]['isMe'],
+          message: messages[index]['message'],
+          time: messages[index]['time'],
+          isLast: messages[index]['isLast'],
+        );
       }),
     );
   }

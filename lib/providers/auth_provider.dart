@@ -12,9 +12,9 @@ class AuthNotifier extends StateNotifier<AuthModel> {
   final Ref _ref;
 
   Future<void> init() async {
-    AuthResult? result = await _ref.read(auth_repository_provider).logged();
+    AuthResult? result = await _ref.read(authRepositoryProvider).logged();
     if (result != null) {
-      state = AuthModel(authSate: AuthSate.login, user: result.user, token: result.token);
+      state = AuthModel(authSate: AuthSate.login, user: result.user, token: result.token, refreshToken: result.refreshToken);
     }
     else {
       state = const AuthModel.failure();
@@ -22,10 +22,10 @@ class AuthNotifier extends StateNotifier<AuthModel> {
   }
 
   Future<void> login(String email, String password) async {
-    AuthResult? result = await _ref.read(auth_repository_provider).login(email, password);
+    AuthResult? result = await _ref.read(authRepositoryProvider).login(email, password);
 
     if (result != null) {
-      state = AuthModel(authSate: AuthSate.login, user: result.user, token: result.token);
+      state = AuthModel(authSate: AuthSate.login, user: result.user, token: result.token, refreshToken: result.refreshToken);
     }
     else {
       state = const AuthModel.failure();
@@ -33,7 +33,7 @@ class AuthNotifier extends StateNotifier<AuthModel> {
   }
   
   Future<void> logOut() async {
-    await _ref.read(auth_repository_provider).logOut();
+    await _ref.read(authRepositoryProvider).logOut();
     state = const AuthModel.failure();
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pocketbase/utils/colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FirstLoadScreen extends ConsumerWidget {
@@ -6,11 +7,11 @@ class FirstLoadScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
+    return const Scaffold(
       backgroundColor: Colors.lightBlue,
       body: SafeArea(
-        child: Container(
-          child: Text('Loadding ...'),
+        child: Center(
+          child: Text('Loadding ...', style: TextStyle(color: white),),
         ),
       ),
     );

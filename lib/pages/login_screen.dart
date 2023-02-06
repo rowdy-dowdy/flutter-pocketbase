@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pocketbase/components/loading_screen.dart';
 import 'package:flutter_pocketbase/providers/auth_provider.dart';
-import 'package:flutter_pocketbase/providers/login_provider.dart';
 import 'package:flutter_pocketbase/repositories/auth_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

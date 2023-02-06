@@ -1,17 +1,23 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_pocketbase/models/user_model.dart';
-import 'package:flutter_pocketbase/services/dio_service.dart';
-import 'package:flutter_pocketbase/services/pocketbase_service.dart';
-import 'package:flutter_pocketbase/services/shared_prefs_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:flutter_pocketbase/models/user_model.dart';
+import 'package:flutter_pocketbase/services/dio_service.dart';
+import 'package:flutter_pocketbase/services/pocketbase_service.dart';
+import 'package:flutter_pocketbase/services/shared_prefs_service.dart';
+
 class AuthResult {
   final UserModel user;
   final String token;
+  final String? refreshToken;
 
-  AuthResult(this.user, this.token);
+  AuthResult({
+    required this.user,
+    required this.token,
+    this.refreshToken,
+  });
 }
 
 class AuthRepository {
@@ -27,57 +33,59 @@ class AuthRepository {
 
   Future<AuthResult?> login(String email, String password) async {
     try {
-      Response response = await dio!.post('/api/collections/users/auth-with-password', data: {
-        "identity": email,
+      Response response = await dio!.post('/api/v1/auth/login', data: {
+        "email": email,
         "password": password
       });
 
+      print(response.data);
+
       AuthResult result = AuthResult(
-        UserModel(
-          response.data['record']['id'], 
-          response.data['record']['username'], 
-          response.data['record']['email'], 
-          DateTime.parse(response.data['record']['created']), 
-          DateTime.parse(response.data['record']['updated'])
+        user: UserModel(
+          id: response.data['user']['id'], 
+          name: response.data['user']['name'], 
+          email: response.data['user']['email'],
+          image: response.data['user']['image']
         ), 
-        response.data['token']
+        token: response.data['token'],
+        refreshToken: response.data['refresh_token'],
       );
 
-      final prefs2 = await SharedPreferences.getInstance();
-      await prefs2.setString('token', response.data['token']);
+      // final prefs2 = await SharedPreferences.getInstance();
+      // await prefs2.setString('token', response.data['token']);
 
-      // await prefs?.setString('token', response.data['token']);
+      final prefs = await _ref!.read(sharedPrefsProvider.future);
+      await prefs.setString('token', response.data['token']);
       
       return result;
       
     } catch (e) {
-      print(e);
       return null;
     }
   }
 
   Future<AuthResult?> logged() async {
     try {
-      final prefs = await this._ref!.read(sharedPrefsProvider.future);
+      final prefs = await _ref!.read(sharedPrefsProvider.future);
       final token = await prefs.getString('token');
 
-      Response response = await dio!.post('/api/collections/users/auth-refresh',
+      Response response = await dio!.post('/api/v1/auth/me',
         options: Options(
           headers: {
-            'Authorization': "Bearer ${token}"
+            'Authorization': "Bearer ${token}1"
           }
         )
       );
 
       AuthResult result = AuthResult(
-        UserModel(
-          response.data['record']['id'], 
-          response.data['record']['username'], 
-          response.data['record']['email'], 
-          DateTime.parse(response.data['record']['created']), 
-          DateTime.parse(response.data['record']['updated'])
+        user: UserModel(
+          id: response.data['user']['id'], 
+          name: response.data['user']['name'], 
+          email: response.data['user']['email'],
+          image: response.data['user']['image']
         ), 
-        response.data['token']
+        token: response.data['token'],
+        refreshToken: response.data['refresh_token'],
       );
 
       return result;
@@ -94,6 +102,6 @@ class AuthRepository {
   }
 }
 
-final auth_repository_provider = Provider<AuthRepository>((ref) {
+final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return AuthRepository(ref);
 });

@@ -7,6 +7,7 @@ import 'package:flutter_pocketbase/pages/contacts_screen.dart';
 import 'package:flutter_pocketbase/pages/chat_screen.dart';
 import 'package:flutter_pocketbase/pages/first_load_screen.dart';
 import 'package:flutter_pocketbase/pages/login_screen.dart';
+import 'package:flutter_pocketbase/pages/settings/setting_edit_screen.dart';
 import 'package:flutter_pocketbase/pages/settings_screen.dart';
 import 'package:flutter_pocketbase/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -84,6 +85,17 @@ class RouterNotifier extends ChangeNotifier {
             state: state, 
             child: const SettingsScreen(),
           ),
+          routes: [
+            GoRoute(
+              name: 'setting-edit',
+              path: 'edit',
+              pageBuilder: (context, state) => buildPageWithDefaultTransition<void>(
+                context: context, 
+                state: state, 
+                child: SettingEditScreen(),
+              ),
+            ),
+          ]
         ),
       ]
     ),

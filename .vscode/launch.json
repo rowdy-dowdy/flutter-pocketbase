@@ -8,9 +8,9 @@
       "name": "flutter_pocketbase",
       "request": "launch",
       "type": "dart",
-      "args": [
-        "--no-sound-null-safety"
-      ]
+      // "args": [
+      //   "--no-sound-null-safety"
+      // ]
     },
     {
       "name": "flutter_pocketbase (profile mode)",

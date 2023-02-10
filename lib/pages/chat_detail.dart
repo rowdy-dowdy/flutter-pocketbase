@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pocketbase/components/chat_buble.dart';
+import 'package:flutter_pocketbase/models/message_model.dart';
+import 'package:flutter_pocketbase/providers/auth_provider.dart';
+import 'package:flutter_pocketbase/repositories/chat_repository.dart';
 // import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_pocketbase/utils/chat_json.dart';
 import 'package:flutter_pocketbase/utils/colors.dart';
@@ -7,6 +10,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 import 'package:badges/badges.dart' as badges;
+import 'package:intl/intl.dart';
+
+final messagesProvider = FutureProvider.family<ListMessageModel?, String?>((ref, roomId) async {
+  return await ref.read(MessageRepositoryProvider).fetchData(roomId);
+});
 
 class ChatDetailScreen extends ConsumerWidget {
   final String? id;
@@ -24,7 +32,7 @@ class ChatDetailScreen extends ConsumerWidget {
           decoration: const BoxDecoration(
             color: bgColor
           ),
-          child: const GetBodyChat()
+          child: GetBodyChat(roomId: id,)
         )),
         const GetBottomBar(),
       ],
@@ -124,20 +132,45 @@ class GetBottomBar  extends ConsumerWidget {
 }
 
 class GetBodyChat extends ConsumerWidget {
-  const GetBodyChat({super.key});
+  final String? roomId;
+  const GetBodyChat({required this.roomId, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ListView(
-      padding: const EdgeInsets.symmetric(vertical: 20),
-      children: List.generate(messages.length, (index) {
-        return CustomBubbleChat(
-          isMe: messages[index]['isMe'],
-          message: messages[index]['message'],
-          time: messages[index]['time'],
-          isLast: messages[index]['isLast'],
-        );
-      }),
+    final currentMessage = ref.watch(messagesProvider(roomId));
+    ref.refresh(messagesProvider(roomId));
+    return currentMessage.when(
+      data: (data) {
+        print(data!.messages);
+        if (data != null && data.messages.isNotEmpty) {
+          final userLogin = ref.watch(authProvider).user;
+          String senderId = "";
+          return ListView(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            children: List.generate(data.messages.length, (index) {
+              bool isLast = senderId != data.messages[index].senderID;
+              senderId = data.messages[index].senderID;
+
+              return CustomBubbleChat(
+                isMe: data.messages[index].senderID == userLogin!.id,
+                message: data.messages[index].body,
+                time: DateFormat('hh:mm a').format(DateTime.parse(data.messages[index].createdAt)),
+                isLast: isLast,
+              );
+            }),
+          );
+        }
+        else {
+          return Container(
+            child: const Text("No chat", style: TextStyle(color: white),),
+          );
+        }
+      },
+      error: (_,__) => const Text('Error 😭'),
+      loading: () => const Padding(
+        padding: EdgeInsets.all(8),
+        child: CircularProgressIndicator(),
+      )
     );
   }
 }

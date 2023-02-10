@@ -40,9 +40,10 @@ dependencies:
   equatable: ^2.0.5
   uuid: ^3.0.7
   pocketbase: ^0.7.1+1
-  dio: ^4.0.6
+  dio: ^4.0.4
   shared_preferences: ^2.0.17
   badges: ^3.0.2
+  intl: ^0.18.0
 
 dev_dependencies:
   flutter_test:

@@ -1,11 +1,11 @@
 import 'dart:convert';
 
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 class UserModel {
   final String id;
   final String name;
   final String email;
   final String image;
+  
   UserModel({
     required this.id,
     required this.name,

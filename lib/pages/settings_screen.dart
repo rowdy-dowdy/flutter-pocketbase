@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pocketbase/providers/auth_provider.dart';
 // import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_pocketbase/utils/chat_json.dart';
 import 'package:flutter_pocketbase/utils/colors.dart';
@@ -74,6 +75,7 @@ class GetImageSetting extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final info = ref.watch(authProvider).user;
     return Column(
       children: [
         Center(
@@ -82,18 +84,21 @@ class GetImageSetting extends ConsumerWidget {
             height: 90,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              image: DecorationImage(image: NetworkImage(profile[0]['img']), fit: BoxFit.cover)
+              image: DecorationImage(image: NetworkImage(info!.image), fit: BoxFit.cover)
             ),
           ),
         ),
         const SizedBox(height: 20,),
-        Text(profile[0]['name'], style: const TextStyle(
+        Text(info.name, style: const TextStyle(
           fontSize: 24, color: white, fontWeight: FontWeight.w600
         ),),
         const SizedBox(height: 2,),
-        Text("+84 399 633 237 - @viethungit", style: TextStyle(
-          fontSize: 18, color: white.withOpacity(0.5), fontWeight: FontWeight.w500
-        ),),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15),
+          child: Text("+84 399 633 237 - ${info.email}", style: TextStyle(
+            fontSize: 18, color: white.withOpacity(0.5), fontWeight: FontWeight.w500
+          ), textAlign: TextAlign.center),
+        ),
         const SizedBox(height: 20,)
       ],
     );

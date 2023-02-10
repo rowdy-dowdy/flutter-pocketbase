@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pocketbase/models/room_model.dart';
+import 'package:flutter_pocketbase/models/user_model.dart';
+import 'package:flutter_pocketbase/providers/auth_provider.dart';
+import 'package:flutter_pocketbase/repositories/room_repository.dart';
 // import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_pocketbase/utils/chat_json.dart';
 import 'package:flutter_pocketbase/utils/colors.dart';
@@ -6,6 +10,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 import 'package:badges/badges.dart' as badges;
+
+final roomProvider = FutureProvider<ListRoomModel?>((ref) async {
+  return await ref.read(roomRepositoryProvider).fetchRoom();
+});
 
 class ChatScreen extends ConsumerWidget {
   const ChatScreen({super.key});
@@ -21,12 +29,18 @@ class ChatScreen extends ConsumerWidget {
           decoration: const BoxDecoration(
             color: bgColor
           ),
-          child: SingleChildScrollView(
-            child: Column(
-              children: const [
-                GetSearchBar(),
-                GetListChats()
-              ],
+          child: RefreshIndicator(
+            onRefresh: () async {
+              ref.refresh(roomProvider.future);
+            },
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Column(
+                children: const [
+                  GetSearchBar(),
+                  GetListChats()
+                ],
+              ),
             ),
           ),
         ))
@@ -111,81 +125,102 @@ class GetListChats extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final currentRooms = ref.watch(roomProvider);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10),
-      child: Column(
-        children: List.generate(chat_data.length, (index) {
-          return GestureDetector(
-            onTap: () => context.go('/chat-detail/$index'),
-            child: Row(
-              children: [
-                Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    image: DecorationImage(
-                      image: NetworkImage(chat_data[index]['img'],),
-                      fit: BoxFit.cover
-                    )
-                  ),
-                ),
-                const SizedBox(width: 12,),
-                Expanded(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      minHeight: 70,
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(chat_data[index]['name'], style: const TextStyle(
-                              fontSize: 16,
-                              color: white,
-                              fontWeight: FontWeight.w600
-                            ), maxLines: 2,),
-                            const SizedBox(width: 2,),
-                            Text(chat_data[index]['date'], style: TextStyle(
-                              fontSize: 14,
-                              color: white.withOpacity(0.4)
-                            ),)
-                          ],
+      child: currentRooms.when(
+        data: (data) {
+          final userLogin = ref.watch(authProvider).user;
+          if (data?.rooms != null && data!.rooms.isNotEmpty) {
+            return Column(
+              children: List.generate(data.rooms.length, (index) {
+
+                UserModel user = data.rooms[index].users.where((element) => element.id != userLogin?.id).first;
+              
+                return GestureDetector(
+                  onTap: () => context.go('/chat-detail/${user.id}}'),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                            image: NetworkImage(user.image,),
+                            fit: BoxFit.cover
+                          )
                         ),
-                        const SizedBox(height: 5,),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Text(chat_data[index]['text'], style: TextStyle(
-                                fontSize: 15,
-                                color: white.withOpacity(0.3),), 
-                                maxLines: 1, 
-                                overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(width: 12,),
+                      Expanded(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(
+                            minHeight: 70,
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(user.name, style: const TextStyle(
+                                    fontSize: 16,
+                                    color: white,
+                                    fontWeight: FontWeight.w600
+                                  ), maxLines: 2,),
+                                  const SizedBox(width: 2,),
+                                  Text("3:23 PM", style: TextStyle(
+                                    fontSize: 14,
+                                    color: white.withOpacity(0.4)
+                                  ),)
+                                ],
                               ),
-                            ),
-                            const SizedBox(width: 2,),
-                            chat_data[index]['badge'] > 0
-                            ? badges.Badge(
-                              badgeContent: Text(chat_data[index]['badge'].toString(), style: const TextStyle(color: white),),
-                              badgeStyle: const badges.BadgeStyle(
-                                badgeColor: primary
+                              const SizedBox(height: 5,),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text("Hey man, lets catup soon", style: TextStyle(
+                                      fontSize: 15,
+                                      color: white.withOpacity(0.3),), 
+                                      maxLines: 1, 
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 2,),
+                                  1 > 0
+                                  ? badges.Badge(
+                                    badgeContent: Text(1.toString(), style: const TextStyle(color: white),),
+                                    badgeStyle: const badges.BadgeStyle(
+                                      badgeColor: primary
+                                    ),
+                                  )
+                                  : Container()
+                                ],
                               ),
-                            )
-                            : Container()
-                          ],
+                              Divider(color: white.withOpacity(0.3),)
+                            ],
+                          ),
                         ),
-                        Divider(color: white.withOpacity(0.3),)
-                      ],
-                    ),
+                      )
+                    ],
                   ),
-                )
-              ],
-            ),
-          );
-        }),
+                );
+              }),
+            );
+          }
+          else {
+            return Container(
+              child: const Text("No chat", style: TextStyle(color: white),),
+            );
+          }
+        },
+        error: (_,__) => const Text('Error 😭'),
+        loading: () => const Padding(
+          padding: EdgeInsets.all(8),
+          child: CircularProgressIndicator(),
+        )
       ),
     );
   }

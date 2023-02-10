@@ -1,8 +1,16 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
-// import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_pocketbase/models/contact_model.dart';
+
+import 'package:flutter_pocketbase/models/user_model.dart';
+import 'package:flutter_pocketbase/repositories/contact_repository.dart';
 import 'package:flutter_pocketbase/utils/colors.dart';
 import 'package:flutter_pocketbase/utils/contact_json.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+final contactsProvider = FutureProvider<ContactModel?>((ref) async {
+  return await ref.read(contactRepositoryProvider).fetchContact();
+});
 
 class ContactsScreen extends ConsumerWidget {
   const ContactsScreen({super.key});
@@ -18,13 +26,19 @@ class ContactsScreen extends ConsumerWidget {
           decoration: const BoxDecoration(
             color: bgColor
           ),
-          child: SingleChildScrollView(
-            child: Column(
-              children: const [
-                GetSearchBar(),
-                GetSectionIcons(),
-                GetContactLists()
-              ],
+          child: RefreshIndicator(
+            onRefresh: () async {
+              ref.refresh(contactsProvider);
+            },
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Column(
+                children: const [
+                  GetSearchBar(),
+                  GetSectionIcons(),
+                  GetContactLists()
+                ],
+              ),
             ),
           ),
         ))
@@ -155,42 +169,62 @@ class GetContactLists extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final currentContact = ref.watch(contactsProvider);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10.0),
-      child: Column(
-        children: List.generate(10, (index) {
-          return Column(
-            children: [
-              Row(
-                children: [
-                  CircleAvatar(
-                    backgroundImage: NetworkImage(contact_data[index]["img"]),
-                  ),
-                  const SizedBox(width: 12,),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(contact_data[index]['name'], style: const TextStyle(
-                        fontSize: 17, color: white, fontWeight: FontWeight.w500
-                      ),),
-                      const SizedBox(height: 2,),
-                      Text(contact_data[index]['is_online'] ? "Online" : contact_data[index]['seen'], style: TextStyle(
-                        fontSize: 13, color: contact_data[index]['is_online'] ? primary : white.withOpacity(0.5), fontWeight: FontWeight.w500
-                      ),)
-                    ],
-                  )
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 50),
-                child: Divider(
-                  thickness: 1,
-                  color: white.withOpacity(0.15),
-                ),
-              )
-            ],
-          );
-        }),
+      child: currentContact.when(
+        data: (data) {
+          if (data != null && data.users.isNotEmpty) {
+            return Column(
+              children: List.generate(data.users.length, (index) {
+                return Column(
+                  children: [
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundImage: NetworkImage(data.users[index].image),
+                        ),
+                        const SizedBox(width: 12,),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(data.users[index].name, style: const TextStyle(
+                              fontSize: 17, color: white, fontWeight: FontWeight.w500
+                            ),),
+                            const SizedBox(height: 2,),
+                            const Text("Online", style: TextStyle(
+                              fontSize: 13, color: primary, fontWeight: FontWeight.w500
+                            ),)
+                            // Text(data.users[index]['is_online'] ? "Online" : data?.users[index]['seen'], style: TextStyle(
+                            //   fontSize: 13, color: data?.users[index]['is_online'] ? primary : white.withOpacity(0.5), fontWeight: FontWeight.w500
+                            // ),)
+                          ],
+                        )
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 50),
+                      child: Divider(
+                        thickness: 1,
+                        color: white.withOpacity(0.15),
+                      ),
+                    )
+                  ],
+                );
+              }),
+            );
+          }
+          else {
+            return Container(
+              child: const Text("No chat", style: TextStyle(color: white),),
+            );
+          }
+        },
+        error: (_,__) => const Text('Error 😭'),
+        loading: () => const Padding(
+          padding: EdgeInsets.all(8),
+          child: CircularProgressIndicator(),
+        )
       ),
     );
   }

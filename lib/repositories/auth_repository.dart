@@ -38,7 +38,7 @@ class AuthRepository {
         "password": password
       });
 
-      print(response.data);
+      dio?.options.headers['Authorization'] = response.data['token'];
 
       AuthResult result = AuthResult(
         user: UserModel(
@@ -56,6 +56,7 @@ class AuthRepository {
 
       final prefs = await _ref!.read(sharedPrefsProvider.future);
       await prefs.setString('token', response.data['token']);
+      await prefs.setString('refresh_token', response.data['refresh_token']);
       
       return result;
       
@@ -69,13 +70,9 @@ class AuthRepository {
       final prefs = await _ref!.read(sharedPrefsProvider.future);
       final token = await prefs.getString('token');
 
-      Response response = await dio!.post('/api/v1/auth/me',
-        options: Options(
-          headers: {
-            'Authorization': "Bearer ${token}1"
-          }
-        )
-      );
+      dio?.options.headers['Authorization'] = "Bearer ${token}";
+
+      Response response = await dio!.get('/api/v1/auth/me');
 
       AuthResult result = AuthResult(
         user: UserModel(

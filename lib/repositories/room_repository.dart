@@ -21,10 +21,24 @@ class RoomRepository {
   Future<ListRoomModel?> fetchRoom() async {
     try {
       Response response = await dio!.get('/api/v1/rooms');
-      print(response.data);
-      ListRoomModel contacts = ListRoomModel.fromMap(response.data);
+
+      ListRoomModel data = ListRoomModel.fromMap(response.data);
       
-      return contacts;
+      return data;
+      
+    } catch (e) {
+      print({e});
+      return null;
+    }
+  }
+
+  Future<RoomModel?> fetchRoomById(String roomId) async {
+    try {
+      Response response = await dio!.get('/api/v1/rooms/$roomId');
+
+      RoomModel data = RoomModel.fromMap(response.data['room']);
+      
+      return data;
       
     } catch (e) {
       print({e});

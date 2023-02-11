@@ -9,21 +9,15 @@ enum AuthSate {
 class AuthModel {
   final AuthSate? authSate;
   final UserModel? user;
-  final String? token;
-  final String? refreshToken;
 
-  AuthModel({required this.authSate, required this.user, required this.token, required this.refreshToken});
+  AuthModel({required this.authSate, required this.user});
 
   const AuthModel.unknown()
     : authSate = AuthSate.initial,
-      user = null,
-      token = null,
-      refreshToken = null;
+      user = null;
 
   const AuthModel.failure()
     : authSate = AuthSate.notLogin,
-      user = null,
-      token = null,
-      refreshToken = null;
+      user = null;
 
 }

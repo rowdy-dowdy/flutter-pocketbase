@@ -31,7 +31,7 @@ class AuthRepository {
     dio = ref.read(dioProvider);
   }
 
-  Future<AuthResult?> login(String email, String password) async {
+  Future<UserModel?> login(String email, String password) async {
     try {
       Response response = await dio!.post('/api/v1/auth/login', data: {
         "email": email,
@@ -40,32 +40,20 @@ class AuthRepository {
 
       dio?.options.headers['Authorization'] = response.data['token'];
 
-      AuthResult result = AuthResult(
-        user: UserModel(
-          id: response.data['user']['id'], 
-          name: response.data['user']['name'], 
-          email: response.data['user']['email'],
-          image: response.data['user']['image']
-        ), 
-        token: response.data['token'],
-        refreshToken: response.data['refresh_token'],
-      );
-
-      // final prefs2 = await SharedPreferences.getInstance();
-      // await prefs2.setString('token', response.data['token']);
-
       final prefs = await _ref!.read(sharedPrefsProvider.future);
       await prefs.setString('token', response.data['token']);
       await prefs.setString('refresh_token', response.data['refresh_token']);
+
+      UserModel user = UserModel.fromMap(response.data['user']);
       
-      return result;
+      return user;
       
     } catch (e) {
       return null;
     }
   }
 
-  Future<AuthResult?> logged() async {
+  Future<UserModel?> logged() async {
     try {
       final prefs = await _ref!.read(sharedPrefsProvider.future);
       final token = await prefs.getString('token');
@@ -74,18 +62,11 @@ class AuthRepository {
 
       Response response = await dio!.get('/api/v1/auth/me');
 
-      AuthResult result = AuthResult(
-        user: UserModel(
-          id: response.data['user']['id'], 
-          name: response.data['user']['name'], 
-          email: response.data['user']['email'],
-          image: response.data['user']['image']
-        ), 
-        token: response.data['token'],
-        refreshToken: response.data['refresh_token'],
-      );
+      // print(response.data['user']);
 
-      return result;
+      UserModel user = UserModel.fromMap(response.data['user']);
+
+      return user;
       
     } catch (e) {
       return null;
@@ -97,6 +78,14 @@ class AuthRepository {
     return Future.delayed(const Duration(milliseconds: 100))
       .then((value) => null);
   }
+
+  // Stream<UserModel> userData(String userId) {
+  //   return firestore.collection('users').doc(userId).snapshots().map(
+  //         (event) => UserModel.fromMap(
+  //           event.data()!,
+  //         ),
+  //       );
+  // }
 }
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {

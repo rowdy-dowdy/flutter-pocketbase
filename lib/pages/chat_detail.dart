@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_pocketbase/components/chat_buble.dart';
 import 'package:flutter_pocketbase/models/message_model.dart';
 import 'package:flutter_pocketbase/providers/auth_provider.dart';
+import 'package:flutter_pocketbase/providers/chat_provider.dart';
 import 'package:flutter_pocketbase/repositories/chat_repository.dart';
 // import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_pocketbase/utils/chat_json.dart';
@@ -12,16 +14,13 @@ import 'package:uuid/uuid.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:intl/intl.dart';
 
-final messagesProvider = FutureProvider.family<ListMessageModel?, String?>((ref, roomId) async {
-  return await ref.read(MessageRepositoryProvider).fetchData(roomId);
-});
-
 class ChatDetailScreen extends ConsumerWidget {
   final String? id;
   const ChatDetailScreen({required this.id, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final liveChat = ref.read(chatProvider(id!).notifier).getRoomData();
     return Column(
       // mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -34,7 +33,7 @@ class ChatDetailScreen extends ConsumerWidget {
           ),
           child: GetBodyChat(roomId: id,)
         )),
-        const GetBottomBar(),
+        GetBottomBar(roomId: id),
       ],
     );
   }
@@ -77,11 +76,29 @@ class GetAppBar extends ConsumerWidget {
   }
 }
 
-class GetBottomBar  extends ConsumerWidget {
-  const GetBottomBar ({super.key});
+class GetBottomBar extends ConsumerStatefulWidget {
+  final String? roomId;
+  const GetBottomBar({required this.roomId, super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ConsumerStatefulWidget> createState() => _GetBottomBarState();
+}
+
+class _GetBottomBarState extends ConsumerState<GetBottomBar> {
+
+  final _textMessageController = TextEditingController();
+  String sendIcon = "mic";
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is removed from the
+    // widget tree.
+    _textMessageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       // height: 60,
@@ -103,75 +120,146 @@ class GetBottomBar  extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(30)
               ),
               child: Row(
-                children: const [
+                children: [
                   Flexible(
                     child: TextField(
-                      style: TextStyle(
+                      controller: _textMessageController,
+                      onChanged: (text) {
+                        if (text == "") {
+                          sendIcon = "mic";
+                        }
+                        else {
+                          sendIcon = "send";
+                        }
+                        setState(() {});
+                      },
+                      style: const TextStyle(
                         color: white
                       ),
                       cursorColor: primary,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         isDense: true,
                         border: InputBorder.none,
                         contentPadding: EdgeInsets.symmetric(vertical: 12.0),
                       ),
                     ),
                   ),
-                  SizedBox(width: 5,),
-                  Icon(Icons.emoji_emotions_rounded, color: primary, size: 25,)
+                  const SizedBox(width: 5,),
+                  const Icon(Icons.emoji_emotions_rounded, color: primary, size: 25,)
                 ],
               ),
             ),
           ),
           const SizedBox(width: 5,),
-          const Icon(Icons.mic, color: primary, size: 25,)
+          sendIcon == "send"
+          ? InkWell(
+            onTap: () async {
+              await ref.read(chatRepositoryProvider).sendMessage(widget.roomId, _textMessageController.text);
+              _textMessageController.text = "";
+            },
+              child: Icon(Icons.send, color: primary, size: 25,)
+            )
+          : const Icon(Icons.mic, color: primary, size: 25,)
         ],
       ),
     );
   }
 }
 
-class GetBodyChat extends ConsumerWidget {
+
+class GetBodyChat extends ConsumerStatefulWidget {
   final String? roomId;
   const GetBodyChat({required this.roomId, super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final currentMessage = ref.watch(messagesProvider(roomId));
-    ref.refresh(messagesProvider(roomId));
-    return currentMessage.when(
-      data: (data) {
-        print(data!.messages);
-        if (data != null && data.messages.isNotEmpty) {
-          final userLogin = ref.watch(authProvider).user;
-          String senderId = "";
-          return ListView(
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            children: List.generate(data.messages.length, (index) {
-              bool isLast = senderId != data.messages[index].senderID;
-              senderId = data.messages[index].senderID;
+  ConsumerState<ConsumerStatefulWidget> createState() => _GetBodyChatState();
+}
 
-              return CustomBubbleChat(
-                isMe: data.messages[index].senderID == userLogin!.id,
-                message: data.messages[index].body,
-                time: DateFormat('hh:mm a').format(DateTime.parse(data.messages[index].createdAt)),
-                isLast: isLast,
-              );
-            }),
-          );
-        }
-        else {
-          return Container(
-            child: const Text("No chat", style: TextStyle(color: white),),
-          );
-        }
+class _GetBodyChatState extends ConsumerState<GetBodyChat> {
+  final ScrollController messageController = ScrollController();
+
+  @override
+  void dispose() {
+    super.dispose();
+    messageController.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final liveChat = ref.watch(chatProvider(widget.roomId!).notifier);
+    print(liveChat);
+    return Consumer(builder: (context, ref, child) {
+      final liveChat = ref.watch(chatProvider(widget.roomId!).notifier).state;
+
+      if (liveChat.loading) {
+        return Container(
+          width: 30,
+          height: 30,
+          padding: const EdgeInsets.all(8),
+          child: const Center(child: CircularProgressIndicator()),
+        );
+      }
+
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          messageController
+            .jumpTo(messageController.position.maxScrollExtent);
+        });
+
+        final userLogin = ref.watch(authProvider).user;
+
+        return ListView.builder(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          controller: messageController,
+          itemCount: liveChat.messages.length,
+          itemBuilder: (context, index) {
+            final message = liveChat.messages[index];
+            bool isLast = index == (liveChat.messages.length - 1) ? true : message.senderID != liveChat.messages[index + 1].senderID ? true : false;
+
+            return CustomBubbleChat(
+              isMe: message.senderID == userLogin!.id,
+              message: message.body,
+              time: DateFormat('hh:mm a').format(DateTime.parse(message.createdAt)),
+              isLast: isLast,
+            );
+          }
+        );
+    });
+
+
+    final liveChat2 = ref.watch(chatStreamProvider(widget.roomId!));
+    return liveChat2.when(
+      data: (data) {
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          messageController
+            .jumpTo(messageController.position.maxScrollExtent);
+        });
+
+        final userLogin = ref.watch(authProvider).user;
+
+        return ListView.builder(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          controller: messageController,
+          itemCount: data.length,
+          itemBuilder: (context, index) {
+            final message = data[index];
+            bool isLast = index == (data.length - 1) ? true : message.senderID != data[index + 1].senderID ? true : false;
+
+            return CustomBubbleChat(
+              isMe: message.senderID == userLogin!.id,
+              message: message.body,
+              time: DateFormat('hh:mm a').format(DateTime.parse(message.createdAt)),
+              isLast: isLast,
+            );
+          }
+        );
       },
       error: (_,__) => const Text('Error 😭'),
-      loading: () => const Padding(
-        padding: EdgeInsets.all(8),
-        child: CircularProgressIndicator(),
+      loading: () => Container(
+        width: 30,
+        height: 30,
+        padding: const EdgeInsets.all(8),
+        child: const Center(child: CircularProgressIndicator()),
       )
     );
   }
 }
-

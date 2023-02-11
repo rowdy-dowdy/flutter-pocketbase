@@ -1,9 +1,9 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
-
+import 'package:equatable/equatable.dart';
 import 'package:flutter_pocketbase/models/user_model.dart';
 
-class RoomModel {
+class RoomModel extends Equatable {
   final String id;
   final List<UserModel> users;
   
@@ -29,6 +29,9 @@ class RoomModel {
   String toJson() => json.encode(toMap());
 
   factory RoomModel.fromJson(String source) => RoomModel.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  @override
+  List<Object> get props => [id, users];
 }
 
 

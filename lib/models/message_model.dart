@@ -9,6 +9,7 @@ class MessageModel {
   final String roomId;
   final String createdAt;
   final String updatedAt;
+  
   MessageModel({
     required this.id,
     required this.senderID,

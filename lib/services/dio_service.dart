@@ -24,29 +24,31 @@ final dioProvider = Provider<Dio>((ref) {
         final prefs = await ref.read(sharedPrefsProvider.future);
         final refreshToken = await prefs.getString('refresh_token');
 
-        await dio.post("/api/v1/auth/refresh-token",  data: {
+        Response response = await dio.post("/api/v1/auth/refresh-token",  data: {
           "refresh_token": refreshToken
-        })
-        .then((value) async {
-          if (value.statusCode == 200) {
-            // await prefs.setString('token', value.data['token']);
-            // await prefs.setString('refresh_token', value.data['refresh_token']);
-
-            e.requestOptions.headers["Authorization"] = "Bearer " + value.data['token'];
-
-            final cloneReq = await dio.request(
-              e.requestOptions.path,
-              options: Options(
-                method: e.requestOptions.method,
-                headers: e.requestOptions.headers
-              ),
-              data: e.requestOptions.data,
-              queryParameters: e.requestOptions.queryParameters
-            );
-
-            return handler.resolve(cloneReq);
-          }
         });
+
+        if (response.statusCode == 200) {
+          // await prefs.setString('token', response.data['token']);
+          // await prefs.setString('refresh_token', response.data['refresh_token']);
+
+          dio.options.headers['Authorization'] = "Bearer ${response.data['token']}";
+
+          e.requestOptions.headers["Authorization"] = "Bearer " + response.data['token'];
+
+          final cloneReq = await dio.request(
+            e.requestOptions.path,
+            options: Options(
+              method: e.requestOptions.method,
+              headers: e.requestOptions.headers
+            ),
+            data: e.requestOptions.data,
+            queryParameters: e.requestOptions.queryParameters
+          );
+
+          return handler.resolve(cloneReq);
+        }
+        
       } catch (e) {
         print(e);
       }

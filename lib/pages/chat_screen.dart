@@ -138,7 +138,7 @@ class GetListChats extends ConsumerWidget {
                 UserModel user = data.rooms[index].users.where((element) => element.id != userLogin?.id).first;
               
                 return GestureDetector(
-                  onTap: () => context.go('/chat-detail/${user.id}}'),
+                  onTap: () => context.go('/chat-detail/${data.rooms[index].id}'),
                   child: Row(
                     children: [
                       Container(

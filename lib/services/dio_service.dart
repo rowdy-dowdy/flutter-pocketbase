@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final dioProvider = Provider<Dio>((ref) {
   var options = BaseOptions(
-    baseUrl: 'http://127.0.0.1:5173',
+    baseUrl: 'https://svelte.viethung.fun',
     // connectTimeout: 5000,
     // receiveTimeout: 3000,
   );

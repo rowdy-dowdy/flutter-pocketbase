@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter_pocketbase/models/message_model.dart';
 import 'package:flutter_pocketbase/providers/chat_provider.dart';
 import 'package:flutter_pocketbase/providers/router_provider.dart';
 import 'package:flutter_pocketbase/services/shared_prefs_service.dart';
@@ -17,11 +18,12 @@ final socketProvider = Provider((ref) {
 
   socket.connect();
 
-  // socket.on('message', (data) {
-  //   print(data['message']['roomId']);
-  //   ref.read(chatStreamProvider(data['message']['roomId']).stream);
-  //   // print(ref.read(chatControllerProvider).chatStream(data['message']['roomId'])).va;
-  // });
+  socket.on('message', (data) {
+    ref.read(chatProvider(data['message']['roomId']).notifier).addMessage(
+      MessageModel.fromMap(data['message'])
+    );
+    // print(ref.read(chatControllerProvider).chatStream(data['message']['roomId'])).va;
+  });
 
   return socket;
 });

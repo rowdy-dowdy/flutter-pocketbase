@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_pocketbase/components/chat_buble.dart';
 import 'package:flutter_pocketbase/models/message_model.dart';
+import 'package:flutter_pocketbase/models/user_model.dart';
 import 'package:flutter_pocketbase/providers/auth_provider.dart';
 import 'package:flutter_pocketbase/providers/chat_provider.dart';
 import 'package:flutter_pocketbase/repositories/chat_repository.dart';
@@ -13,6 +14,7 @@ import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:intl/intl.dart';
+import 'package:collection/collection.dart';
 
 class ChatDetailScreen extends ConsumerWidget {
   final String? id;
@@ -20,12 +22,13 @@ class ChatDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final liveChat = ref.read(chatProvider(id!).notifier).getRoomData();
+    // final liveChat = ref.read(chatProvider(id!).notifier).getRoomData();
+    // print(liveChat);
     return Column(
       // mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const GetAppBar(),
+        GetAppBar(roomId: id,),
         Expanded(flex: 1, child: Container(
           height: double.infinity,
           decoration: const BoxDecoration(
@@ -40,7 +43,8 @@ class ChatDetailScreen extends ConsumerWidget {
 }
 
 class GetAppBar extends ConsumerWidget {
-  const GetAppBar({super.key});
+  final String? roomId;
+  const GetAppBar({required this.roomId, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -51,15 +55,24 @@ class GetAppBar extends ConsumerWidget {
         backgroundColor: greyColor,
         centerTitle: true,
         title: Container(
-          child: Column(
-            children: [
-              Text("Việt Hùng Ít", style: const TextStyle(
-                fontSize: 17, color: white, fontWeight: FontWeight.bold
-              ),),
-              Text("last seen recently", style: TextStyle(
-                fontSize: 12, color: white.withOpacity(0.4)
-              ),)
-            ],
+          child: Consumer(
+            builder: (context, ref, child) {
+              final liveChat = ref.watch(chatProvider(roomId!));
+              
+              final userLogin = ref.watch(authProvider).user;
+              UserModel? info = liveChat.users.firstWhereOrNull((v) => v.id != userLogin!.id);
+
+              return Column(
+                children: [
+                  Text(info?.name ?? "", style: const TextStyle(
+                    fontSize: 17, color: white, fontWeight: FontWeight.bold
+                  ),),
+                  Text("last seen recently", style: TextStyle(
+                    fontSize: 12, color: white.withOpacity(0.4)
+                  ),)
+                ],
+              );
+            }
           ),
         ),
         leading: IconButton(
@@ -186,10 +199,13 @@ class _GetBodyChatState extends ConsumerState<GetBodyChat> {
 
   @override
   Widget build(BuildContext context) {
-    final liveChat = ref.watch(chatProvider(widget.roomId!).notifier);
-    print(liveChat);
+    // final liveChat = ref.watch(chatProvider(widget.roomId!).notifier).state.loading;
+    // print(liveChat);
     return Consumer(builder: (context, ref, child) {
-      final liveChat = ref.watch(chatProvider(widget.roomId!).notifier).state;
+      final liveChat = ref.watch(chatProvider(widget.roomId!));
+
+      // print('live chat');
+      // print(liveChat.messages);
 
       if (liveChat.loading) {
         return Container(
@@ -200,29 +216,38 @@ class _GetBodyChatState extends ConsumerState<GetBodyChat> {
         );
       }
 
-        SchedulerBinding.instance.addPostFrameCallback((_) {
-          messageController
-            .jumpTo(messageController.position.maxScrollExtent);
-        });
-
-        final userLogin = ref.watch(authProvider).user;
-
-        return ListView.builder(
+      if (liveChat.messages.isEmpty) {
+        return Container(
           padding: const EdgeInsets.symmetric(vertical: 20),
-          controller: messageController,
-          itemCount: liveChat.messages.length,
-          itemBuilder: (context, index) {
-            final message = liveChat.messages[index];
-            bool isLast = index == (liveChat.messages.length - 1) ? true : message.senderID != liveChat.messages[index + 1].senderID ? true : false;
-
-            return CustomBubbleChat(
-              isMe: message.senderID == userLogin!.id,
-              message: message.body,
-              time: DateFormat('hh:mm a').format(DateTime.parse(message.createdAt)),
-              isLast: isLast,
-            );
-          }
+          child: Text('Not Messages'),
         );
+      }
+
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        messageController
+          .jumpTo(messageController.position.maxScrollExtent);
+      });
+
+      final userLogin = ref.watch(authProvider).user;
+
+      final messages = liveChat.messages.reversed.toList();
+
+      return ListView.builder(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        controller: messageController,
+        itemCount: messages.length,
+        itemBuilder: (context, index) {
+          final message = messages[index];
+          bool isLast = index == (messages.length - 1) ? true : message.senderID != messages[index + 1].senderID ? true : false;
+
+          return CustomBubbleChat(
+            isMe: message.senderID == userLogin!.id,
+            message: message.body,
+            time: DateFormat('hh:mm a').format(DateTime.parse(message.createdAt)),
+            isLast: isLast,
+          );
+        }
+      );
     });
 
 

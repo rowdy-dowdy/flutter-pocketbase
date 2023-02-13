@@ -29,8 +29,8 @@ final dioProvider = Provider<Dio>((ref) {
         });
 
         if (response.statusCode == 200) {
-          // await prefs.setString('token', response.data['token']);
-          // await prefs.setString('refresh_token', response.data['refresh_token']);
+          await prefs.setString('token', response.data['token']);
+          await prefs.setString('refresh_token', response.data['refresh_token']);
 
           dio.options.headers['Authorization'] = "Bearer ${response.data['token']}";
 

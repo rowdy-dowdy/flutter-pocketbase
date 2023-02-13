@@ -14,7 +14,7 @@ class AuthNotifier extends StateNotifier<AuthModel> {
 
   Future<void> init() async {
     UserModel? result = await _ref.read(authRepositoryProvider).logged();
-    print(result);
+    // print(result);
     if (result != null) {
       state = AuthModel(authSate: AuthSate.login, user: result);
 

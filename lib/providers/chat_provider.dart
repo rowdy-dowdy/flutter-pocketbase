@@ -37,8 +37,23 @@ class RoomChat extends Equatable {
     return RoomChat(roomId: roomId, messages: messages, users: users, loading: loading);
   }
 
-  RoomChat addMessages (ListMessageModel list) {
-    return RoomChat(roomId: roomId, messages: list.messages, users: users, loading: loading);
+  RoomChat addMessages (list) {
+    if (list is ListMessageModel) {
+      return RoomChat(
+        roomId: roomId, 
+        messages: [...list.messages, ...messages], 
+        users: users, 
+        loading: loading
+      );
+    }
+    else {
+      return RoomChat(
+        roomId: roomId, 
+        messages: [list, ...messages], 
+        users: users, 
+        loading: loading
+      );
+    }
   }
 
   @override
@@ -57,7 +72,9 @@ class ChatNotifier extends StateNotifier<RoomChat> {
   final Ref ref;
   final String roomId;
 
-  ChatNotifier(this.ref, this.roomId): super(RoomChat.unknown());
+  ChatNotifier(this.ref, this.roomId): super(RoomChat.unknown()) {
+    getRoomData();
+  }
   
   Future<void> getRoomData() async {
     state = state.copyWithLoading(true);
@@ -81,9 +98,12 @@ class ChatNotifier extends StateNotifier<RoomChat> {
 
     ListMessageModel data = await ref.read(chatRepositoryProvider).fetchData(roomId);
 
-    state = room.addMessages(data);
+    state = room.addMessages(data).copyWithLoading(false);
+    // state = state.copyWithLoading(false);
+  }
 
-    state = state.copyWithLoading(false);
+  Future<void> addMessage(MessageModel message) async {
+    state = state.addMessages(message);
   }
 }
 
